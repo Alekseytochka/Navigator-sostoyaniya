@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Навигатор восстановления — самопроверка состояния</title>
+<meta name="description" content="Вы отдыхаете, но не восстанавливаетесь? Короткая самопроверка состояния: 7 вопросов, 2 минуты. Это не диагностика.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --graphite:#3A2A38;       /* главный тёмный (текст, кнопки) */
+    --graphite-deep:#2E2030;  /* заголовки */
+    --rose:#B08A8F;           /* пыльная роза, акцент */
+    --rose-deep:#9C5C6E;      /* насыщенная роза для выделений */
+    --gold:#C8A86B;           /* золото — мост к Spaquatoria */
+    --gold-deep:#9C7E6A;      /* приглушённое золото для надписей */
+    --cream:#F3EDE6;          /* основной фон */
+    --cream-2:#ECE3D8;        /* фон-2, секции */
+    --ink:#3A2A38;            /* основной текст */
+    --ink-soft:#6A5A60;       /* вторичный текст */
+    --line:#DcD0C4;           /* тонкие линии */
+    --line-soft:rgba(58,42,56,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  .serif{font-family:'Spectral',Georgia,serif}
+
+  /* ─────────── ПЕРВЫЙ ЭКРАН ─────────── */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(120% 90% at 80% -12%, #EADEDC 0%, rgba(234,222,220,0) 60%),
+      linear-gradient(165deg,var(--cream) 0%,var(--cream-2) 100%);
+    padding:78px 0 64px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line),transparent);
+  }
+  .eyebrow{
+    font-family:'Inter';font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--gold-deep);font-weight:600;margin-bottom:10px;
+  }
+  .eyebrow-sub{
+    font-family:'Spectral';font-style:italic;font-size:15px;color:var(--rose-deep);
+    margin-bottom:30px;font-weight:400;letter-spacing:.01em;
+  }
+  .hero h1{
+    font-family:'Spectral',serif;font-weight:500;
+    font-size:clamp(32px,5.6vw,54px);line-height:1.14;
+    color:var(--graphite-deep);letter-spacing:-.01em;margin-bottom:24px;
+  }
+  .hero h1 b{font-weight:500;color:var(--rose-deep)}
+  .hero .sub{
+    font-weight:300;font-size:clamp(15px,2.2vw,18px);line-height:1.72;
+    color:var(--ink-soft);max-width:540px;margin:0 auto 16px;
+  }
+  .hero .sub.last{margin-bottom:38px}
+  .btn{
+    display:inline-flex;align-items:center;gap:11px;
+    background:var(--graphite);color:var(--cream);border:none;
+    padding:17px 42px;border-radius:8px;
+    font-family:'Inter';font-weight:500;font-size:15px;letter-spacing:.01em;
+    cursor:pointer;transition:.22s;text-decoration:none;
+  }
+  .btn:hover{background:var(--rose-deep);transform:translateY(-1px)}
+  .btn .arr{transition:.22s}
+  .btn:hover .arr{transform:translateX(3px)}
+  .note{font-family:'Inter';font-size:13px;color:#8A8174;margin-top:18px;font-weight:300}
+
+  /* ─────────── ОБЩИЕ СЕКЦИИ ─────────── */
+  section.block{padding:64px 0}
+  .kicker{
+    font-family:'Inter';font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold-deep);font-weight:600;margin-bottom:18px;
+  }
+  .block h2{
+    font-family:'Spectral',serif;font-weight:500;
+    font-size:clamp(26px,4vw,38px);line-height:1.18;
+    color:var(--graphite-deep);margin-bottom:24px;letter-spacing:-.01em;
+  }
+  .block p{font-weight:300;font-size:17px;line-height:1.78;color:var(--ink-soft);margin-bottom:18px}
+  .block p:last-child{margin-bottom:0}
+  .block p b{font-weight:500;color:var(--ink)}
+
+  .divider{height:1px;background:var(--line);max-width:760px;margin:0 auto}
+
+  /* ─────────── ДОВЕРИЕ ─────────── */
+  .trust{background:var(--cream-2)}
+  .trust .inner{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:start}
+  .avatar{
+    width:96px;height:96px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(160deg,var(--rose),var(--rose-deep));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Spectral',serif;font-size:36px;color:var(--cream);font-weight:500;
+    box-shadow:0 14px 34px -16px rgba(156,92,110,.7);
+  }
+  .trust h2{margin-bottom:20px}
+  @media(max-width:560px){
+    .trust .inner{grid-template-columns:1fr;gap:20px;text-align:center}
+    .avatar{margin:0 auto}
+  }
+
+  /* ─────────── СЕКЦИЯ ТЕСТА ─────────── */
+  .test-section{
+    background:
+      radial-gradient(120% 80% at 80% -10%, #EADEDC 0%, rgba(234,222,220,0) 55%),
+      linear-gradient(180deg,var(--cream) 0%,var(--cream-2) 100%);
+    padding:64px 0 74px;
+  }
+  .test-section .lead{text-align:center;max-width:620px;margin:0 auto 38px}
+  .test-section .lead h2{margin-bottom:16px}
+  .card{
+    background:var(--cream);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:38px 32px 34px;
+    box-shadow:0 30px 70px -38px rgba(58,42,56,.35);
+    position:relative;overflow:hidden;
+    max-width:600px;margin:0 auto;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+  .screen{animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .t-eyebrow{font-family:'Inter';font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-deep);font-weight:600;margin-bottom:14px}
+  .card h3.t-h{font-family:'Spectral',serif;font-weight:500;font-size:27px;line-height:1.18;color:var(--graphite-deep);margin-bottom:14px}
+  .card p.t-p{color:var(--ink-soft);font-weight:300;font-size:15.5px;margin-bottom:14px;line-height:1.7}
+  .card p.t-p b{color:var(--ink);font-weight:500}
+  .q-text{font-family:'Spectral',serif;font-size:23px;line-height:1.3;color:var(--graphite-deep);margin-bottom:24px;font-weight:500}
+
+  .progress{height:3px;background:rgba(58,42,56,.10);border-radius:3px;margin-bottom:26px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--rose-deep));width:0;transition:width .45s cubic-bezier(.4,0,.2,1)}
+  .step-label{font-family:'Inter';font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);font-weight:600;margin-bottom:18px}
+
+  .opts{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .opt{
+    text-align:left;width:100%;
+    background:var(--cream);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:15px 18px;border-radius:11px;
+    font-family:'Inter',sans-serif;font-size:15px;font-weight:400;
+    cursor:pointer;transition:all .18s ease;
+    display:flex;align-items:center;gap:14px;
+  }
+  .opt:hover{border-color:var(--rose-deep);background:#fff;transform:translateX(3px)}
+  .opt .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--rose-deep);flex-shrink:0;transition:.18s}
+  .opt:hover .dot{background:var(--rose-deep)}
+  .opt .num{font-family:'Spectral',serif;font-size:19px;color:var(--rose-deep);width:18px;flex-shrink:0;font-weight:500}
+
+  .t-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--graphite);color:var(--cream);
+    border:none;padding:15px 32px;border-radius:8px;
+    font-family:'Inter',sans-serif;font-weight:500;font-size:14.5px;letter-spacing:.01em;
+    cursor:pointer;transition:.22s;margin-top:8px;text-decoration:none;
+  }
+  .t-btn:hover{background:var(--rose-deep);transform:translateY(-1px)}
+
+  .disclaimer{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-soft);font-family:'Inter';font-size:12.5px;color:#8A8174;font-weight:300}
+  .consent-note{font-family:'Inter';font-size:12.5px;color:#8A8174;margin-top:14px;font-weight:300}
+
+  /* профиль */
+  .zone{margin-bottom:18px}
+  .zone-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .zone-name{font-family:'Spectral',serif;font-size:19px;color:var(--graphite-deep);font-weight:500}
+  .zone-word{font-family:'Inter';font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .bar{height:7px;background:rgba(58,42,56,.08);border-radius:6px;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:6px;width:0;transition:width .9s cubic-bezier(.34,1.2,.5,1)}
+  .zone.dom .zone-name{color:var(--rose-deep)}
+
+  .route-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-soft)}
+  .route-step:last-child{border-bottom:none}
+  .route-num{font-family:'Spectral',serif;font-size:25px;color:var(--rose-deep);flex-shrink:0;width:30px;line-height:1;font-weight:500}
+  .route-body h4{font-family:'Spectral',serif;font-weight:500;font-size:18px;color:var(--graphite-deep);margin-bottom:4px}
+  .route-body .meta{font-family:'Inter';font-size:12px;color:var(--gold-deep);letter-spacing:.03em;margin-bottom:6px}
+  .route-body p{margin-bottom:0;font-size:14px;color:var(--ink-soft);font-weight:300}
+  .tag{display:inline-block;font-family:'Inter';font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--gold-deep);margin-left:6px;vertical-align:middle}
+  .tag.free{background:rgba(176,138,143,.16);color:var(--rose-deep);border-color:transparent}
+
+  .lead-in{font-family:'Spectral',serif;font-style:italic;font-size:18px;color:var(--rose-deep);margin:8px 0 18px}
+  .cta-box{margin-top:22px;padding:22px;border:1px solid var(--line);border-radius:14px;background:rgba(176,138,143,.08)}
+  .cta-box h4{font-family:'Spectral',serif;font-weight:500;font-size:21px;color:var(--graphite-deep);margin-bottom:8px}
+  .cta-box p{font-size:14.5px;color:var(--ink-soft);font-weight:300;margin-bottom:14px}
+  .restart{margin-top:18px;text-align:center}
+  .restart a{font-family:'Inter';color:#8A8174;font-size:12.5px;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;cursor:pointer}
+  .restart a:hover{color:var(--rose-deep)}
+
+  /* ─────────── ФУТЕР ─────────── */
+  footer{background:var(--graphite-deep);color:var(--cream);padding:40px 0 36px;text-align:center}
+  footer .fname{font-family:'Spectral',serif;font-size:20px;font-weight:500;margin-bottom:6px}
+  footer .ftag{font-family:'Inter';font-size:13px;font-weight:300;color:#C9B8B0;margin-bottom:16px}
+  footer .fdisc{font-family:'Inter';font-size:12px;font-weight:300;color:#9A8A88;max-width:520px;margin:0 auto;line-height:1.6}
+
+  @media(max-width:560px){
+    .card{padding:30px 22px 28px}
+    section.block{padding:48px 0}
+    .test-section{padding:48px 0 56px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ ПЕРВЫЙ ЭКРАН ═══════════ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Навигатор восстановления</div>
+    <div class="eyebrow-sub">Самопроверка состояния и первый шаг к восстановлению сил</div>
+    <h1>Вы отдыхаете, но <b>не восстанавливаетесь</b></h1>
+    <p class="sub">Спите по восемь часов, а встаёте разбитым. Возвращаетесь из отпуска, и через пару дней кажется, будто вы никуда не уезжали. Если это про вас, дело может быть не в количестве сна. Возможно, ваша нервная система застряла в режиме напряжения и не переключается на отдых.</p>
+    <p class="sub last">Пройдите короткий тест: семь вопросов, две минуты. Я покажу, где именно сейчас может быть зажим и с чего лучше начать восстановление.</p>
+    <a href="#test" class="btn">Пройти тест <span class="arr">→</span></a>
+    <p class="note">2 минуты, без регистрации. Это не диагностика и не замена консультации врача.</p>
+  </div>
+</header>
+
+<!-- ═══════════ ПРОБЛЕМА ═══════════ -->
+<section class="block">
+  <div class="wrap">
+    <div class="kicker">Почему так происходит</div>
+    <h2>Усталость, которая не проходит после отдыха</h2>
+    <p>Это не лень и не возраст. У нашей нервной системы есть два основных режима. Симпатическая система помогает нам действовать, собираться, решать задачи и справляться с нагрузкой. А парасимпатическая, наоборот, отвечает за восстановление: расслабиться, выспаться, прийти в себя.</p>
+    <p>Когда напряжения слишком много и оно длится слишком долго, тело будто застревает на первой передаче и перестаёт переключаться само.</p>
+    <p>Тогда сон становится поверхностным, тело будто каменеет, а раздражать начинает даже то, что раньше не задевало. Отдых при этом не всегда спасает, потому что отдых и восстановление не одно и то же. Можно неделю пролежать на пляже и вернуться таким же выжатым.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════ ДОВЕРИЕ К АЛЕКСЕЮ ═══════════ -->
+<section class="block trust">
+  <div class="wrap">
+    <div class="inner">
+      <div class="avatar">А</div>
+      <div>
+        <div class="kicker">Кто проводит</div>
+        <h2>Меня зовут Алексей</h2>
+        <p>Уже двенадцать лет я работаю с телом и состоянием человека: телесные практики, звук, внимание, расслабление через тело. Через мои сессии прошло около двухсот человек, и многие возвращаются годами.</p>
+        <p>Я не врач и не ставлю диагнозы. Моя работа проще и конкретнее: помочь телу выйти из режима постоянного напряжения и снова включить ту самую передачу, которая отвечает за восстановление.</p>
+        <p>Часто люди говорят, что впервые за долгое время начали нормально спать, легче просыпаться и спокойнее реагировать на привычные нагрузки.</p>
+        <p><b>Этот тест нужен для того, чтобы вы сами увидели, где у вас сейчас больше всего напряжения. Что делать дальше, решаете только вы.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ТЕСТ ═══════════ -->
+<section class="test-section" id="test">
+  <div class="wrap">
+    <div class="lead">
+      <div class="kicker">Самопроверка</div>
+      <h2>Где сейчас держится напряжение</h2>
+      <p style="font-weight:300;font-size:16px;color:var(--ink-soft)">Отвечайте как есть, первым, что приходит в голову. Это займёт около двух минут.</p>
+    </div>
+    <div class="card">
+      <div id="app"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ФУТЕР ═══════════ -->
+<footer>
+  <div class="wrap">
+    <div class="fname">Навигатор восстановления</div>
+    <div class="ftag">Алексей Чистяков · Москва и Смоленск</div>
+    <div class="fdisc">Это самооценка состояния, а не медицинская диагностика. Сервис не ставит диагнозов и не заменяет консультацию врача или психолога.</div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   ЛОГИКА ТЕСТА (детерминированно, дизайн v1.2):
+   фильтр А → фильтр Б → 4 зоны → профиль → сборка маршрута.
+   Кнопка финала ведёт в личку VK.
+============================================================ */
+
+const VK_URL = "https://vk.com/aleksey_relaxolog_chistyakov";
+
+const state = { flagA:false, contra:false, flagB:false, core:{}, idx:0 };
+
+const filterA = [
+  {id:'a1', text:'За последнее время были резкая или непривычная боль, головокружения, проблемы с давлением или сердцем?', trigger:'A'},
+  {id:'a2', text:'Есть симптомы, которые держатся дольше нескольких недель и мешают обычной жизни?', trigger:'A'},
+  {id:'a3', text:'Сейчас наблюдаетесь у врача или принимаете назначенное лечение по тому, что вас беспокоит?', trigger:'contra'},
+  {id:'a4', text:'Беременность, недавняя операция или травма?', trigger:'contra'}
+];
+
+const filterB = [
+  {id:'b1', text:'Когда вам не хватает сна, это потому что…', opts:[
+    {label:'Физически не остаётся времени: поздно ложусь, рано встаю', flag:true},
+    {label:'Время есть, но не получается уснуть или просыпаюсь', flag:false},
+    {label:'Сна мне в целом хватает', flag:false}
+  ]},
+  {id:'b2', text:'Когда у вас в последний раз был день совсем без задач и обязательств?', opts:[
+    {label:'Регулярно бывают', flag:false},
+    {label:'Редко, но случаются', flag:false},
+    {label:'Давно не помню такого', flag:true}
+  ]},
+  {id:'b3', text:'Бывают ли в течение дня паузы, хотя бы 10–15 минут ни на что?', opts:[
+    {label:'Да, бывают', flag:false},
+    {label:'Редко', flag:false},
+    {label:'Почти никогда', flag:false}
+  ]}
+];
+
+const zones = [
+  {key:'tension', name:'Напряжение', q:[
+    {text:'К концу дня я замечаю зажатость в плечах, шее или челюсти'},
+    {text:'Когда я хочу расслабить тело, оно всё равно продолжает «держать» само'}
+  ]},
+  {key:'sleep', name:'Сон', q:[
+    {text:'Я просыпаюсь так, будто почти не спал'},
+    {text:'Засыпаю с «крутящимися» мыслями'}
+  ]},
+  {key:'body', name:'Контакт с телом', q:[
+    {text:'Я замечаю сигналы тела (усталость, голод, напряжение) заранее, до того как станет проблемой', inv:true},
+    {text:'Большую часть дня я живу «в голове», тело почти не замечаю'}
+  ]},
+  {key:'relax', name:'Расслабление', q:[
+    {text:'У меня получается отключиться от работы, когда я не работаю', inv:true},
+    {text:'Отдых меня не восстанавливает, я просто «выключаюсь»'}
+  ]}
+];
+
+const scaleOpts = ['совсем не про меня','редко','часто','прямо про меня'];
+
+const freeStep = {
+  tension:{t:'Отпустить плечи и челюсть', p:'Прямо сейчас, 60 секунд: на длинном медленном выдохе сознательно опустите плечи и расслабьте челюсть. Замечайте, насколько они были подняты.'},
+  sleep:{t:'Вечернее замедление дыхания', p:'Сегодня перед сном несколько минут спокойного дыхания, где выдох длиннее вдоха. Это мягко переключает тело в режим отдыха.'},
+  body:{t:'Короткое сканирование тела', p:'1–2 минуты внимания: пройдитесь вниманием от макушки до стоп, просто отмечая, где есть напряжение. Ничего не меняя.'},
+  relax:{t:'Одно переключение и «ОМ»', p:'Сегодня одно действие только на переключение, не по делам. И, если откликается, пропойте несколько раз «ОМ» на выдохе: размеренное пение помогает телу выдохнуть.'}
+};
+
+const zoneGroup = {
+  tension:{soft:'Групповая звукотерапия / звуковая ванна', hard:'Группа с телесной разрядкой'},
+  sleep:{soft:'Групповая звукотерапия (йога-нидра)', hard:'Групповая звукотерапия (йога-нидра)'},
+  body:{soft:'Телесно-голосовой тренинг', hard:'Телесно-голосовой тренинг'},
+  relax:{soft:'Группа «Мнуши» / групповая звукотерапия', hard:'Группа «Мнуши» / групповая звукотерапия'}
+};
+const zoneCosmetic = {
+  tension:'Разогревающее средство для домашнего ритуала, в паре с самостоятельной практикой или дыханием',
+  sleep:'Вечерний успокаивающий аромат-ритуал, в паре с дыхательной практикой',
+  body:'Средство для домашнего ритуала, где сам процесс нанесения становится практикой контакта с телом',
+  relax:'Домашний ритуал расслабления в связке со звуком, в паре с прослушиванием чаш'
+};
+const zoneLabel = {tension:'напряжение',sleep:'сон',body:'контакт с телом',relax:'расслабление'};
+
+const app = document.getElementById('app');
+function render(html){ app.innerHTML = '<div class="screen">'+html+'</div>'; }
+function progress(pct){ return '<div class="progress"><i style="width:'+pct+'%"></i></div>'; }
+
+/* ---------- ИНТРО ---------- */
+function intro(){
+  render(`
+    <div class="t-eyebrow">Навигатор восстановления</div>
+    <h3 class="t-h">За пару минут заметить, что с вами происходит</h3>
+    <p class="t-p">Эта короткая самопроверка помогает увидеть, где сейчас сильнее всего держится напряжение: тело, сон, контакт с собой или переключение.</p>
+    <p class="t-p">Сразу честно: <b>это не медицина и не диагноз.</b> Я не ставлю оценок здоровью, это просто ориентир, чтобы понять, с чего вам стоит начать.</p>
+    <p class="t-p">Отвечайте как есть, первым, что приходит.</p>
+    <button class="t-btn" onclick="startA()">Начать проверку →</button>
+    <div class="consent-note">Нажимая «Начать», вы соглашаетесь, что это самооценка состояния, а не медицинская диагностика.</div>
+  `);
+}
+
+/* ---------- ФИЛЬТР А ---------- */
+let aIdx=0;
+function startA(){ aIdx=0; state.flagA=false; state.contra=false; askA(); }
+function askA(){
+  const q=filterA[aIdx];
+  render(`
+    ${progress(8 + aIdx*6)}
+    <div class="step-label">Несколько вопросов для начала</div>
+    <div class="q-text">${q.text}</div>
+    <div class="opts">
+      <button class="opt" onclick="answerA(true)"><span class="dot"></span>Да</button>
+      <button class="opt" onclick="answerA(false)"><span class="dot"></span>Нет</button>
+    </div>
+  `);
+}
+function answerA(yes){
+  const q=filterA[aIdx];
+  if(yes && q.trigger==='A') state.flagA=true;
+  if(yes && q.trigger==='contra') state.contra=true;
+  aIdx++;
+  if(aIdx<filterA.length){ askA(); }
+  else if(state.flagA){ outcomeA(); }
+  else { startB(); }
+}
+
+/* ---------- ФИЛЬТР Б ---------- */
+let bIdx=0;
+function startB(){ bIdx=0; state.flagB=false; askB(); }
+function askB(){
+  const q=filterB[bIdx];
+  render(`
+    ${progress(34 + bIdx*6)}
+    <div class="step-label">Про сон и паузы</div>
+    <div class="q-text">${q.text}</div>
+    <div class="opts">
+      ${q.opts.map((o)=>`<button class="opt" onclick="answerB(${o.flag})"><span class="dot"></span>${o.label}</button>`).join('')}
+    </div>
+  `);
+}
+function answerB(flag){
+  if(flag) state.flagB=true;
+  bIdx++;
+  if(bIdx<filterB.length){ askB(); }
+  else if(state.flagB){ outcomeB(); }
+  else { startCore(); }
+}
+
+/* ---------- ЯДРО ---------- */
+let qFlat=[];
+function startCore(){
+  qFlat=[];
+  zones.forEach(z=>z.q.forEach((q)=>qFlat.push({zone:z.key, zoneName:z.name, ...q})));
+  state.core={}; state.idx=0; askCore();
+}
+function askCore(){
+  const q=qFlat[state.idx];
+  render(`
+    ${progress(56 + (state.idx/qFlat.length)*40)}
+    <div class="step-label">${q.zoneName}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="opts">
+      ${scaleOpts.map((label,val)=>`<button class="opt" onclick="answerCore(${val})"><span class="num">${val}</span>${label}</button>`).join('')}
+    </div>
+  `);
+}
+function answerCore(val){
+  const q=qFlat[state.idx];
+  const score = q.inv ? (3-val) : val;
+  if(!state.core[q.zone]) state.core[q.zone]=0;
+  state.core[q.zone]+=score;
+  state.idx++;
+  if(state.idx<qFlat.length){ askCore(); } else { result(); }
+}
+
+/* ---------- ПРОФИЛЬ + МАРШРУТ ---------- */
+function pct(zoneKey){ return Math.round((state.core[zoneKey]/6)*100); }
+function word(p){
+  if(p<40) return {w:'в порядке', c:'#6E9E7E'};
+  if(p<60) return {w:'потихоньку копится', c:'#C8A86B'};
+  if(p<80) return {w:'заметно просело', c:'#C08A6E'};
+  return {w:'просело сильнее всего', c:'#9C5C6E'};
+}
+
+function result(){
+  const ordered=[...zones].map(z=>({...z,p:pct(z.key)})).sort((a,b)=>b.p-a.p);
+  const dominant=ordered.filter(z=>z.p>=60).slice(0,2);
+  const lead = dominant.length?dominant:[ordered[0]];
+  const contra=state.contra;
+
+  const bars=ordered.map(z=>{
+    const wd=word(z.p);
+    const isDom=lead.some(d=>d.key===z.key);
+    return `<div class="zone ${isDom?'dom':''}">
+      <div class="zone-head"><span class="zone-name">${z.name}</span><span class="zone-word" style="color:${wd.c}">${wd.w}</span></div>
+      <div class="bar"><i style="width:${z.p}%;background:linear-gradient(90deg,${wd.c},${wd.c}cc)"></i></div>
+    </div>`;
+  }).join('');
+
+  const top=lead[0].key;
+  const fs=freeStep[top];
+  let steps=`
+    <div class="route-step">
+      <div class="route-num">1</div>
+      <div class="route-body">
+        <h4>${fs.t} <span class="tag free">сегодня · бесплатно</span></h4>
+        <p>${fs.p}</p>
+      </div>
+    </div>`;
+  let n=2;
+  steps+=`
+    <div class="route-step">
+      <div class="route-num">${n++}</div>
+      <div class="route-body">
+        <h4>Индивидуальная сессия <span class="tag">не-косметика</span></h4>
+        <div class="meta">≈ 1,5 часа · 5 000 ₽ (знакомство)</div>
+        <p>${contra?'Мягкий формат: телесная работа без интенсива, плюс звук, под ваше состояние.':'Телесная работа, звук и работа с состоянием, глубже, чем самостоятельная практика.'}</p>
+      </div>
+    </div>`;
+  const grp = contra ? zoneGroup[top].soft : zoneGroup[top].hard;
+  steps+=`
+    <div class="route-step">
+      <div class="route-num">${n++}</div>
+      <div class="route-body">
+        <h4>${grp} <span class="tag">не-косметика</span></h4>
+        <div class="meta">≈ 3 часа · 1700 ₽ человек · 3000 ₽ пара</div>
+        <p>Камерная группа, мягкий способ войти в практику рядом с другими.</p>
+      </div>
+    </div>`;
+  steps+=`
+    <div class="route-step">
+      <div class="route-num">${n++}</div>
+      <div class="route-body">
+        <h4>Домашний ритуал со средством Spaquatoria <span class="tag">в паре с практикой</span></h4>
+        <p>${zoneCosmetic[top]}. Это поддержка между встречами, а не замена практике.</p>
+      </div>
+    </div>`;
+
+  const domNames = lead.map(z=>zoneLabel[z.key]).join(' и ');
+
+  render(`
+    <div class="t-eyebrow">Ваш профиль состояния</div>
+    <h3 class="t-h">Вот что получилось</h3>
+    <p class="t-p">Это не оценка и не диагноз, просто карта, где сейчас держится больше всего. ${contra?'Учитываю, что вы отметили, и держу маршрут в мягких форматах.':''}</p>
+    <div style="margin:22px 0 26px">${bars}</div>
+    <p class="lead-in">Сильнее всего сейчас просело: ${domNames}. С этого и начнём.</p>
+    <div class="step-label">Ваш маршрут, по одному шагу</div>
+    <div style="margin-top:10px">${steps}</div>
+
+    <div class="cta-box">
+      <h4>Хотите, разберу ваш маршрут подробнее?</h4>
+      <p>Я посмотрю ваши ответы и подскажу, с чего начать именно вам. Такой разбор стоит 1500 ₽ и занимает около получаса. Если потом придёте на сессию, эту сумму я засчитаю в её стоимость.</p>
+      <a class="t-btn" href="${VK_URL}" target="_blank" rel="noopener">Записаться на разбор →</a>
+      <p style="margin:14px 0 0;font-size:13px">Я напишу вам лично во ВКонтакте.</p>
+    </div>
+
+    <div class="disclaimer">Это самооценка состояния, а не медицинская диагностика. Сервис не ставит диагнозов и не заменяет врача или психолога.</div>
+    <div class="restart"><a onclick="intro()">↻ пройти заново</a></div>
+  `);
+}
+
+/* ---------- ИСХОД А ---------- */
+function outcomeA(){
+  render(`
+    <div class="t-eyebrow">Честный ответ</div>
+    <h3 class="t-h">Вам стоит начать не с меня</h3>
+    <p class="t-p">Спасибо, что ответили честно. По тому, что вы отметили, сейчас важнее показать это <b>специалисту, врачу.</b></p>
+    <p class="t-p">Это не отказ, а забота: телесные практики не должны идти впереди медицины. Когда с этим разберётесь, буду рад видеть вас на восстановлении.</p>
+    <p class="t-p">Берегите себя.</p>
+    <div class="disclaimer">Это самооценка состояния, а не медицинская диагностика. Сервис не ставит диагнозов и не заменяет врача.</div>
+    <div class="restart"><a onclick="intro()">↻ пройти заново</a></div>
+  `);
+}
+
+/* ---------- ИСХОД Б ---------- */
+function outcomeB(){
+  render(`
+    <div class="t-eyebrow">Честный ответ</div>
+    <h3 class="t-h">Вам сейчас нужна не программа, а сон и пауза</h3>
+    <p class="t-p">Спасибо. Если честно, пока в сутках нет места, чтобы остановиться, никакая практика этого места не создаст. Самый честный первый шаг, вернуть себе время на сон и небольшие паузы днём.</p>
+    <p class="t-p"><b>Одно, что можно сделать уже сегодня:</b> вечером перед сном несколько минут спокойного дыхания, где выдох длиннее вдоха. Это мягко переключает тело в режим отдыха.</p>
+    <p class="t-p">А когда база вернётся, приходите, продолжим вместе.</p>
+    <div class="disclaimer">Это самооценка состояния, а не медицинская диагностика.</div>
+    <div class="restart"><a onclick="intro()">↻ пройти заново</a></div>
+  `);
+}
+
+intro();
+</script>
+</body>
+</html>
